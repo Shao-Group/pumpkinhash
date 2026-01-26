@@ -1,10 +1,13 @@
 #ifndef PUMPKINHASH_HPP
 #define PUMPKINHASH_HPP
 
+#include <algorithm>
 #include <chrono>
 #include <iostream>
 #include <map>
 #include <random>
+#include <string>
+#include <vector>
 
 using namespace std;
 
@@ -24,10 +27,11 @@ class PumpkinHash
 
 public:
     PumpkinHash();
-    PumpkinHash(int, int, map<char, int>);
+    PumpkinHash(const int, const int, const map<char, int>);
     ~PumpkinHash();
 
     void generateTables();
+    int solveDP(const string);
 };
 
 #endif
