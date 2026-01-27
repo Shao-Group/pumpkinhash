@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstdlib>
 #include <iostream>
 #include <map>
 #include <random>
@@ -31,7 +32,7 @@ public:
     ~PumpkinHash();
 
     void generateTables();
-    int solveDP(const string);
+    int solveDP(const string, const int);
 };
 
 #endif
