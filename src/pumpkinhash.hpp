@@ -15,6 +15,12 @@ using namespace std;
 #define POS_INF numeric_limits<int>::max()
 #define NEG_INF numeric_limits<int>::min()
 
+struct Seed
+{
+    int psi;
+    int omega;
+};
+
 class PumpkinHash
 {
     int windowSizeN;
@@ -32,7 +38,7 @@ public:
     ~PumpkinHash();
 
     void generateTables();
-    int solveDP(const string, const int);
+    Seed solveDP(const string, const int);
 };
 
 #endif

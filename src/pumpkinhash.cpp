@@ -124,7 +124,7 @@ void PumpkinHash::generateTables()
     return;
 }
 
-int PumpkinHash::solveDP(const string sequence, const int numMaxEditsE)
+Seed PumpkinHash::solveDP(const string sequence, const int numMaxEditsE)
 {
     if (sequence.length() != this->windowSizeN)
     {
@@ -173,13 +173,13 @@ int PumpkinHash::solveDP(const string sequence, const int numMaxEditsE)
 
                 if (this->tableB1[(n - 1) * this->paramD * this->alphabet.size() + d * this->alphabet.size() + this->alphabet[sequence[n - 1]]] == 1)
                 {
-                    dpTableTminCase2Ret = dpTableTminCase2Ret + dpTableTmin[(n - 1) * (numMaxEditsE + 1) * this->paramD + e * this->paramD + dPrevious];
-                    dpTableTmaxCase2Ret = dpTableTmaxCase2Ret + dpTableTmax[(n - 1) * (numMaxEditsE + 1) * this->paramD + e * this->paramD + dPrevious];
+                    dpTableTminCase2Ret = (dpTableTmin[(n - 1) * (numMaxEditsE + 1) * this->paramD + e * this->paramD + dPrevious] == POS_INF) ? POS_INF : (dpTableTminCase2Ret + dpTableTmin[(n - 1) * (numMaxEditsE + 1) * this->paramD + e * this->paramD + dPrevious]);
+                    dpTableTmaxCase2Ret = (dpTableTmax[(n - 1) * (numMaxEditsE + 1) * this->paramD + e * this->paramD + dPrevious] == NEG_INF) ? NEG_INF : (dpTableTmaxCase2Ret + dpTableTmax[(n - 1) * (numMaxEditsE + 1) * this->paramD + e * this->paramD + dPrevious]);
                 }
                 else
                 {
-                    dpTableTminCase2Ret = dpTableTminCase2Ret - dpTableTmax[(n - 1) * (numMaxEditsE + 1) * this->paramD + e * this->paramD + dPrevious];
-                    dpTableTmaxCase2Ret = dpTableTmaxCase2Ret - dpTableTmin[(n - 1) * (numMaxEditsE + 1) * this->paramD + e * this->paramD + dPrevious];
+                    dpTableTminCase2Ret = (dpTableTmax[(n - 1) * (numMaxEditsE + 1) * this->paramD + e * this->paramD + dPrevious] == NEG_INF) ? POS_INF : (dpTableTminCase2Ret - dpTableTmax[(n - 1) * (numMaxEditsE + 1) * this->paramD + e * this->paramD + dPrevious]);
+                    dpTableTmaxCase2Ret = (dpTableTmin[(n - 1) * (numMaxEditsE + 1) * this->paramD + e * this->paramD + dPrevious] == POS_INF) ? NEG_INF : (dpTableTmaxCase2Ret - dpTableTmin[(n - 1) * (numMaxEditsE + 1) * this->paramD + e * this->paramD + dPrevious]);
                 }
 
                 // Case-3: base s_n substituted with s'_n
@@ -200,13 +200,13 @@ int PumpkinHash::solveDP(const string sequence, const int numMaxEditsE)
 
                         if (this->tableB1[(n - 1) * this->paramD * this->alphabet.size() + d * this->alphabet.size() + pair.second] == 1)
                         {
-                            dpTableTminCase3SubTemp = dpTableTminCase3SubTemp + dpTableTmin[(n - 1) * (numMaxEditsE + 1) * this->paramD + (e - 1) * this->paramD + dPrevious];
-                            dpTableTmaxCase3SubTemp = dpTableTmaxCase3SubTemp + dpTableTmax[(n - 1) * (numMaxEditsE + 1) * this->paramD + (e - 1) * this->paramD + dPrevious];
+                            dpTableTminCase3SubTemp = (dpTableTmin[(n - 1) * (numMaxEditsE + 1) * this->paramD + (e - 1) * this->paramD + dPrevious] == POS_INF) ? POS_INF : (dpTableTminCase3SubTemp + dpTableTmin[(n - 1) * (numMaxEditsE + 1) * this->paramD + (e - 1) * this->paramD + dPrevious]);
+                            dpTableTmaxCase3SubTemp = (dpTableTmax[(n - 1) * (numMaxEditsE + 1) * this->paramD + (e - 1) * this->paramD + dPrevious] == NEG_INF) ? NEG_INF : (dpTableTmaxCase3SubTemp + dpTableTmax[(n - 1) * (numMaxEditsE + 1) * this->paramD + (e - 1) * this->paramD + dPrevious]);
                         }
                         else
                         {
-                            dpTableTminCase3SubTemp = dpTableTminCase3SubTemp - dpTableTmax[(n - 1) * (numMaxEditsE + 1) * this->paramD + (e - 1) * this->paramD + dPrevious];
-                            dpTableTmaxCase3SubTemp = dpTableTmaxCase3SubTemp - dpTableTmin[(n - 1) * (numMaxEditsE + 1) * this->paramD + (e - 1) * this->paramD + dPrevious];
+                            dpTableTminCase3SubTemp = (dpTableTmax[(n - 1) * (numMaxEditsE + 1) * this->paramD + (e - 1) * this->paramD + dPrevious] == NEG_INF) ? POS_INF : (dpTableTminCase3SubTemp - dpTableTmax[(n - 1) * (numMaxEditsE + 1) * this->paramD + (e - 1) * this->paramD + dPrevious]);
+                            dpTableTmaxCase3SubTemp = (dpTableTmin[(n - 1) * (numMaxEditsE + 1) * this->paramD + (e - 1) * this->paramD + dPrevious] == POS_INF) ? NEG_INF : (dpTableTmaxCase3SubTemp - dpTableTmin[(n - 1) * (numMaxEditsE + 1) * this->paramD + (e - 1) * this->paramD + dPrevious]);
                         }
 
                         if (dpTableTminCase3SubTemp < dpTableTminCase3Sub)
@@ -232,10 +232,50 @@ int PumpkinHash::solveDP(const string sequence, const int numMaxEditsE)
     for (int d = 0; d < this->paramD; d++)
     {
         dpTableT[d] = NEG_INF;
+
+        for (int e = 0, dpTableTd; e <= numMaxEditsE; e++)
+        {
+            if (dpTableTmin[this->windowSizeN * (numMaxEditsE + 1) * this->paramD + e * this->paramD + d] == POS_INF && dpTableTmax[this->windowSizeN * (numMaxEditsE + 1) * this->paramD + e * this->paramD + d] == NEG_INF)
+            {
+                dpTableTd = NEG_INF;
+            }
+            else if (dpTableTmin[this->windowSizeN * (numMaxEditsE + 1) * this->paramD + e * this->paramD + d] < POS_INF && dpTableTmax[this->windowSizeN * (numMaxEditsE + 1) * this->paramD + e * this->paramD + d] == NEG_INF)
+            {
+                dpTableTd = abs(dpTableTmin[this->windowSizeN * (numMaxEditsE + 1) * this->paramD + e * this->paramD + d]);
+            }
+            else if (dpTableTmin[this->windowSizeN * (numMaxEditsE + 1) * this->paramD + e * this->paramD + d] == POS_INF && dpTableTmax[this->windowSizeN * (numMaxEditsE + 1) * this->paramD + e * this->paramD + d] > NEG_INF)
+            {
+                dpTableTd = abs(dpTableTmax[this->windowSizeN * (numMaxEditsE + 1) * this->paramD + e * this->paramD + d]);
+            }
+            else
+            {
+                dpTableTd = max(abs(dpTableTmin[this->windowSizeN * (numMaxEditsE + 1) * this->paramD + e * this->paramD + d]), abs(dpTableTmax[this->windowSizeN * (numMaxEditsE + 1) * this->paramD + e * this->paramD + d]));
+            }
+
+            if (dpTableTd > dpTableT[d])
+            {
+                dpTableT[d] = dpTableTd;
+            }
+        }
     }
 
     delete[] dpTableTmin;
     delete[] dpTableTmax;
 
-    return 0;
+    Seed seed;
+
+    seed.psi = -1;
+
+    for (int d = 0; d < this->paramD; d++)
+    {
+        if (dpTableT[d] > NEG_INF)
+        {
+            seed.psi = d;
+            break;
+        }
+    }
+
+    seed.omega = (seed.psi == -1) ? NEG_INF : dpTableT[seed.psi];
+
+    return seed;
 }
