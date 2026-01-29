@@ -1,1 +1,10 @@
-initial_experiments/
+# Ignore everything in this repository
+*
+
+# Except for below items in this repository
+!.gitignore
+!README.md
+
+!/src
+!/src/*.hpp
+!/src/*.cpp
