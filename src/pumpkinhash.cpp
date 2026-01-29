@@ -1,6 +1,6 @@
 #include "pumpkinhash.hpp"
 
-PumpkinHash::PumpkinHash() : PumpkinHash(20, 11, {{'A', 0}, {'C', 1}, {'G', 2}, {'T', 3}})
+PumpkinHash::PumpkinHash() : PumpkinHash(5, 11, {{'A', 0}, {'C', 1}, {'G', 2}, {'T', 3}})
 {
     // Calling parameterized constructor from default constructor with default arguments
 }
