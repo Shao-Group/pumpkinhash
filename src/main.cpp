@@ -8,7 +8,7 @@ int main(int argc, char **argv)
 
     Seed seed = pumpkinHash.solveDP("GAGTC", 2);
 
-    cout << seed.psi << ", " << seed.omega << endl;
+    cout << seed.psi << ", " << seed.omega << ", " << seed.seed << endl;
 
     return 0;
 }

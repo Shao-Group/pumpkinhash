@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstdint>
 #include <cstdlib>
 #include <iostream>
 #include <map>
@@ -15,10 +16,17 @@ using namespace std;
 #define POS_INF numeric_limits<int>::max()
 #define NEG_INF numeric_limits<int>::min()
 
+struct DpTableCell
+{
+    int dpTableValue;
+    uint64_t dpTableSeed;
+};
+
 struct Seed
 {
     int psi;
     int omega;
+    string seed;
 };
 
 class PumpkinHash
