@@ -4,9 +4,11 @@ int main(int argc, char **argv)
 {
     PumpkinHash pumpkinHash;
 
-    pumpkinHash.generateTables();
+    // pumpkinHash.generateTables();
 
-    Seed seed = pumpkinHash.solveDP("GAGTC", 2);
+    pumpkinHash.loadTables();
+
+    Seed seed = pumpkinHash.solveDP("AAAAAAAAAAAAAAAAAAAA", 4);
 
     cout << seed.psi << ", " << seed.omega << ", " << seed.seed << endl;
 

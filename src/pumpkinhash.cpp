@@ -1,6 +1,6 @@
 #include "pumpkinhash.hpp"
 
-PumpkinHash::PumpkinHash() : PumpkinHash(5, 11, {{'A', 0}, {'C', 1}, {'G', 2}, {'T', 3}})
+PumpkinHash::PumpkinHash() : PumpkinHash(20, 11, {{'A', 0}, {'C', 1}, {'G', 2}, {'T', 3}})
 {
     // Calling parameterized constructor from default constructor with default arguments
 }
@@ -120,6 +120,143 @@ void PumpkinHash::generateTables()
             this->tableC[n * this->alphabet.size() + sigma] = paramDValues[sigma];
         }
     }
+
+    string tablesFileFolderPath = string("..") + filesystem::path::preferred_separator + string("tables");
+
+    filesystem::path tablesFileFolder(tablesFileFolderPath);
+
+    if (!filesystem::exists(tablesFileFolder))
+    {
+        if (!filesystem::create_directories(tablesFileFolder))
+        {
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    string tablesFilePath = tablesFileFolderPath + filesystem::path::preferred_separator + string("tables_N") + to_string(this->windowSizeN) + string("_D") + to_string(this->paramD) + string("_Sigma") + to_string(this->alphabet.size());
+
+    ofstream tablesFile(tablesFilePath);
+
+    if (!tablesFile.is_open())
+    {
+        exit(EXIT_FAILURE);
+    }
+
+    for (int n = 0; n < this->windowSizeN; n++)
+    {
+        for (int d = 0; d < this->paramD; d++)
+        {
+            for (int sigma = 0; sigma < this->alphabet.size(); sigma++)
+            {
+                tablesFile << this->tableA[n * this->paramD * this->alphabet.size() + d * this->alphabet.size() + sigma] << " ";
+            }
+
+            tablesFile << endl;
+        }
+
+        tablesFile << endl;
+    }
+
+    for (int n = 0; n < this->windowSizeN; n++)
+    {
+        for (int d = 0; d < this->paramD; d++)
+        {
+            for (int sigma = 0; sigma < this->alphabet.size(); sigma++)
+            {
+                tablesFile << this->tableB1[n * this->paramD * this->alphabet.size() + d * this->alphabet.size() + sigma] << " ";
+            }
+
+            tablesFile << endl;
+        }
+
+        tablesFile << endl;
+    }
+
+    for (int n = 0; n < this->windowSizeN; n++)
+    {
+        for (int d = 0; d < this->paramD; d++)
+        {
+            for (int sigma = 0; sigma < this->alphabet.size(); sigma++)
+            {
+                tablesFile << this->tableB2[n * this->paramD * this->alphabet.size() + d * this->alphabet.size() + sigma] << " ";
+            }
+
+            tablesFile << endl;
+        }
+
+        tablesFile << endl;
+    }
+
+    for (int n = 0; n < this->windowSizeN; n++)
+    {
+        for (int sigma = 0; sigma < this->alphabet.size(); sigma++)
+        {
+            tablesFile << this->tableC[n * this->alphabet.size() + sigma] << " ";
+        }
+
+        tablesFile << endl;
+    }
+
+    tablesFile.close();
+
+    return;
+}
+
+void PumpkinHash::loadTables()
+{
+    string tablesFilePath = string("..") + filesystem::path::preferred_separator + string("tables") + filesystem::path::preferred_separator + string("tables_N") + to_string(this->windowSizeN) + string("_D") + to_string(this->paramD) + string("_Sigma") + to_string(this->alphabet.size());
+
+    ifstream tablesFile;
+
+    tablesFile.open(tablesFilePath);
+
+    if (!tablesFile.is_open())
+    {
+        exit(EXIT_FAILURE);
+    }
+
+    for (int n = 0; n < this->windowSizeN; n++)
+    {
+        for (int d = 0; d < this->paramD; d++)
+        {
+            for (int sigma = 0; sigma < this->alphabet.size(); sigma++)
+            {
+                tablesFile >> this->tableA[n * this->paramD * this->alphabet.size() + d * this->alphabet.size() + sigma];
+            }
+        }
+    }
+
+    for (int n = 0; n < this->windowSizeN; n++)
+    {
+        for (int d = 0; d < this->paramD; d++)
+        {
+            for (int sigma = 0; sigma < this->alphabet.size(); sigma++)
+            {
+                tablesFile >> this->tableB1[n * this->paramD * this->alphabet.size() + d * this->alphabet.size() + sigma];
+            }
+        }
+    }
+
+    for (int n = 0; n < this->windowSizeN; n++)
+    {
+        for (int d = 0; d < this->paramD; d++)
+        {
+            for (int sigma = 0; sigma < this->alphabet.size(); sigma++)
+            {
+                tablesFile >> this->tableB2[n * this->paramD * this->alphabet.size() + d * this->alphabet.size() + sigma];
+            }
+        }
+    }
+
+    for (int n = 0; n < this->windowSizeN; n++)
+    {
+        for (int sigma = 0; sigma < this->alphabet.size(); sigma++)
+        {
+            tablesFile >> this->tableC[n * this->alphabet.size() + sigma];
+        }
+    }
+
+    tablesFile.close();
 
     return;
 }

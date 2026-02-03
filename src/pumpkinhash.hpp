@@ -5,6 +5,8 @@
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <map>
 #include <random>
@@ -46,6 +48,8 @@ public:
     ~PumpkinHash();
 
     void generateTables();
+    void loadTables();
+
     Seed solveDP(const string, const int);
 };
 
