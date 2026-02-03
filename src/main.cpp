@@ -2,13 +2,19 @@
 
 int main(int argc, char **argv)
 {
-    PumpkinHash pumpkinHash;
+    string sequence = "AAAAAAAAAAAAAAAAAAAA";
 
-    // pumpkinHash.generateTables();
+    int paramD = 11, tablesFileVersion = 0, numMaxEditsE = 4;
 
-    pumpkinHash.loadTables();
+    map<char, int> alphabet = {{'A', 0}, {'C', 1}, {'G', 2}, {'T', 3}};
 
-    Seed seed = pumpkinHash.solveDP("AAAAAAAAAAAAAAAAAAAA", 4);
+    PumpkinHash pumpkinHash(sequence.length(), paramD, alphabet);
+
+    pumpkinHash.generateTables(tablesFileVersion);
+
+    pumpkinHash.loadTables(tablesFileVersion);
+
+    Seed seed = pumpkinHash.solveDP(sequence, numMaxEditsE);
 
     cout << seed.psi << ", " << seed.omega << ", " << seed.seed << endl;
 

@@ -47,8 +47,8 @@ public:
     PumpkinHash(const int, const int, const map<char, int>);
     ~PumpkinHash();
 
-    void generateTables();
-    void loadTables();
+    void generateTables(const int);
+    void loadTables(const int);
 
     Seed solveDP(const string, const int);
 };

@@ -25,7 +25,7 @@ PumpkinHash::~PumpkinHash()
     delete[] this->tableC;
 }
 
-void PumpkinHash::generateTables()
+void PumpkinHash::generateTables(const int tablesFileVersion)
 {
     random_device seedSource;
 
@@ -133,7 +133,7 @@ void PumpkinHash::generateTables()
         }
     }
 
-    string tablesFilePath = tablesFileFolderPath + filesystem::path::preferred_separator + string("tables_N") + to_string(this->windowSizeN) + string("_D") + to_string(this->paramD) + string("_Sigma") + to_string(this->alphabet.size());
+    string tablesFilePath = tablesFileFolderPath + filesystem::path::preferred_separator + string("tables_N") + to_string(this->windowSizeN) + string("_D") + to_string(this->paramD) + string("_Sigma") + to_string(this->alphabet.size()) + string("_Version") + to_string(tablesFileVersion);
 
     ofstream tablesFile(tablesFilePath);
 
@@ -202,9 +202,9 @@ void PumpkinHash::generateTables()
     return;
 }
 
-void PumpkinHash::loadTables()
+void PumpkinHash::loadTables(const int tablesFileVersion)
 {
-    string tablesFilePath = string("..") + filesystem::path::preferred_separator + string("tables") + filesystem::path::preferred_separator + string("tables_N") + to_string(this->windowSizeN) + string("_D") + to_string(this->paramD) + string("_Sigma") + to_string(this->alphabet.size());
+    string tablesFilePath = string("..") + filesystem::path::preferred_separator + string("tables") + filesystem::path::preferred_separator + string("tables_N") + to_string(this->windowSizeN) + string("_D") + to_string(this->paramD) + string("_Sigma") + to_string(this->alphabet.size()) + string("_Version") + to_string(tablesFileVersion);
 
     ifstream tablesFile;
 
