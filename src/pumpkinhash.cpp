@@ -121,7 +121,7 @@ void PumpkinHash::generateTables(const int tablesFileVersion)
         }
     }
 
-    string tablesFileFolderPath = string("..") + filesystem::path::preferred_separator + string("tables");
+    string tablesFileFolderPath = string("..") + filesystem::path::preferred_separator + string("tables") + filesystem::path::preferred_separator + string("tables_N") + to_string(this->windowSizeN) + string("_D") + to_string(this->paramD) + string("_Sigma") + to_string(this->alphabet.size());
 
     filesystem::path tablesFileFolder(tablesFileFolderPath);
 
@@ -204,7 +204,7 @@ void PumpkinHash::generateTables(const int tablesFileVersion)
 
 void PumpkinHash::loadTables(const int tablesFileVersion)
 {
-    string tablesFilePath = string("..") + filesystem::path::preferred_separator + string("tables") + filesystem::path::preferred_separator + string("tables_N") + to_string(this->windowSizeN) + string("_D") + to_string(this->paramD) + string("_Sigma") + to_string(this->alphabet.size()) + string("_Version") + to_string(tablesFileVersion);
+    string tablesFilePath = string("..") + filesystem::path::preferred_separator + string("tables") + filesystem::path::preferred_separator + string("tables_N") + to_string(this->windowSizeN) + string("_D") + to_string(this->paramD) + string("_Sigma") + to_string(this->alphabet.size()) + filesystem::path::preferred_separator + string("tables_N") + to_string(this->windowSizeN) + string("_D") + to_string(this->paramD) + string("_Sigma") + to_string(this->alphabet.size()) + string("_Version") + to_string(tablesFileVersion);
 
     ifstream tablesFile;
 
