@@ -42,6 +42,8 @@ class PumpkinHash
     int *tableB2;
     int *tableC;
 
+    int returnDPTableIndex(const int, const int, const int, const int, const int);
+
 public:
     PumpkinHash();
     PumpkinHash(const int, const int, const map<char, int>);
@@ -51,6 +53,7 @@ public:
     void loadTables(const int);
 
     Seed solveDP(const string, const int);
+    Seed solveDPEsEd(const string, const int);
 };
 
 #endif
