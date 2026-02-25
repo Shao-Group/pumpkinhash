@@ -4,7 +4,7 @@ int main(int argc, char **argv)
 {
     if (argc != 5)
     {
-        cerr << "Invalid number of command-line arguments provided!\nCorrect usage: ./pumpkinhash_seeds_generator_esed [dataFileName] [paramD] [numTablesFileVersions] [numMaxEditsE]" << endl;
+        cerr << "Invalid number of command-line arguments provided!\nCorrect usage: ./pumpkinhash_naive_seeds_generator [dataFileName] [paramD] [numTablesFileVersions] [numMaxEditsE]" << endl;
 
         return 1;
     }
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
         {
             pumpkinHash.loadTables(tablesFileVersion);
 
-            Seed seed = pumpkinHash.solveDPEsEd(sequence, numMaxEditsE);
+            Seed seed = pumpkinHash.solveDPNaive(sequence, numMaxEditsE);
 
             seedsFile << tablesFileVersion << "," << seed.psi << "," << seed.omega << "," << seed.seed << endl;
         }

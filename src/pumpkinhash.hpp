@@ -52,8 +52,8 @@ public:
     void generateTables(const int);
     void loadTables(const int);
 
+    Seed solveDPNaive(const string, const int);
     Seed solveDP(const string, const int);
-    Seed solveDPEsEd(const string, const int);
 };
 
 #endif

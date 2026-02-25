@@ -277,7 +277,7 @@ void PumpkinHash::loadTables(const int tablesFileVersion)
     return;
 }
 
-Seed PumpkinHash::solveDP(const string sequence, const int numMaxEditsE)
+Seed PumpkinHash::solveDPNaive(const string sequence, const int numMaxEditsE)
 {
     if (sequence.length() != this->windowSizeN)
     {
@@ -568,7 +568,7 @@ Seed PumpkinHash::solveDP(const string sequence, const int numMaxEditsE)
     return seed;
 }
 
-Seed PumpkinHash::solveDPEsEd(const string sequence, const int numMaxEditsE)
+Seed PumpkinHash::solveDP(const string sequence, const int numMaxEditsE)
 {
     if (sequence.length() != this->windowSizeN)
     {
