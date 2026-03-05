@@ -4,7 +4,7 @@ int main(int argc, char **argv)
 {
     if (argc != 5)
     {
-        cerr << "Invalid number of command-line arguments provided!\nCorrect usage: ./pumpkinhash_naive_seeds_generator [dataFileName] [paramD] [numTablesFileVersions] [numMaxEditsE]" << endl;
+        cerr << "Invalid number of command-line arguments provided!\nCorrect usage: ./pumpkinhash_naive_seeds_generator [dataFileName] [paramD] [numRepeats] [numMaxEditsE]" << endl;
 
         return 1;
     }
@@ -22,7 +22,7 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    int paramD = stoi(argv[2]), numTablesFileVersions = stoi(argv[3]), numMaxEditsE = stoi(argv[4]);
+    int paramD = stoi(argv[2]), numRepeats = stoi(argv[3]), numMaxEditsE = stoi(argv[4]);
 
     map<char, int> defaultAlphabet = {{'A', 0}, {'C', 1}, {'G', 2}, {'T', 3}};
 
@@ -49,7 +49,7 @@ int main(int argc, char **argv)
 
     string sequence;
 
-    cout << "Generating " << numTablesFileVersions << " seeds for sequences in " << dataFileName << " file with D = " << paramD << " and at most " << numMaxEditsE << " edits..." << endl;
+    cout << "Generating " << numRepeats << " seeds for sequences in " << dataFileName << " file with D = " << paramD << " and at most " << numMaxEditsE << " edits..." << endl;
 
     while (dataFile >> sequence)
     {
@@ -59,13 +59,13 @@ int main(int argc, char **argv)
 
         seedsFile << sequence << endl;
 
-        for (int tablesFileVersion = 1; tablesFileVersion <= numTablesFileVersions; tablesFileVersion++)
+        for (int repeat = 1; repeat <= numRepeats; repeat++)
         {
-            pumpkinHash.loadTables(tablesFileVersion);
+            pumpkinHash.loadTables(repeat);
 
             Seed seed = pumpkinHash.solveDPNaive(sequence, numMaxEditsE);
 
-            seedsFile << tablesFileVersion << "," << seed.psi << "," << seed.omega << "," << seed.seed << endl;
+            seedsFile << repeat << "," << seed.psi << "," << seed.omega << "," << seed.seed << endl;
         }
     }
 
