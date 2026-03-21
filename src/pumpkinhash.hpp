@@ -53,7 +53,7 @@ public:
     void loadTables(const int);
 
     Seed solveDPNaive(const string, const int);
-    Seed solveDP(const string, const int);
+    vector<Seed> solveDP(const string, const int, const bool);
 };
 
 #endif
