@@ -16,12 +16,12 @@ int PumpkinHash::returnDPTableIndex(const int numMaxEditsE, const int n, const i
     return dpTableIndex;
 }
 
-PumpkinHash::PumpkinHash() : PumpkinHash(20, 11, {{'A', 0}, {'C', 1}, {'G', 2}, {'T', 3}})
+PumpkinHash::PumpkinHash() : PumpkinHash(20, 11, {{'A', 0}, {'C', 1}, {'G', 2}, {'T', 3}}, false)
 {
     // Calling parameterized constructor from default constructor with default arguments
 }
 
-PumpkinHash::PumpkinHash(const int windowSizeN, const int paramD, const map<char, int> alphabet)
+PumpkinHash::PumpkinHash(const int windowSizeN, const int paramD, const map<char, int> alphabet, const bool doUseTablesC)
 {
     this->windowSizeN = windowSizeN;
     this->paramD = paramD;
@@ -30,7 +30,25 @@ PumpkinHash::PumpkinHash(const int windowSizeN, const int paramD, const map<char
     this->tableA = new int[windowSizeN * paramD * alphabet.size()];
     this->tableB1 = new int[windowSizeN * paramD * alphabet.size()];
     this->tableB2 = new int[windowSizeN * paramD * alphabet.size()];
-    this->tableC = new int[windowSizeN * alphabet.size()];
+
+    if (doUseTablesC)
+    {
+        this->tableC = nullptr;
+
+        for (int d = 0; d < paramD; d++)
+        {
+            this->tablesC.push_back(new int[windowSizeN * alphabet.size()]);
+        }
+    }
+    else
+    {
+        this->tableC = new int[windowSizeN * alphabet.size()];
+
+        for (int d = 0; d < paramD; d++)
+        {
+            this->tablesC.push_back(nullptr);
+        }
+    }
 }
 
 PumpkinHash::~PumpkinHash()
@@ -39,6 +57,11 @@ PumpkinHash::~PumpkinHash()
     delete[] this->tableB1;
     delete[] this->tableB2;
     delete[] this->tableC;
+
+    for (int d = 0; d < this->paramD; d++)
+    {
+        delete[] this->tablesC[d];
+    }
 }
 
 void PumpkinHash::generateTables(const int tablesFileVersion)
@@ -110,30 +133,37 @@ void PumpkinHash::generateTables(const int tablesFileVersion)
         }
     }
 
-    vector<int> paramDValues;
-
-    for (int i = 0; i < this->paramD; i++)
+    if (this->tableC == nullptr)
     {
-        paramDValues.push_back(i);
+
     }
-
-    if (this->alphabet.size() > this->paramD)
+    else
     {
-        for (int i = this->paramD; i < this->alphabet.size(); i++)
+        vector<int> paramDValues;
+
+        for (int i = 0; i < this->paramD; i++)
         {
-            paramDValues.push_back(i % this->paramD);
+            paramDValues.push_back(i);
         }
-    }
 
-    for (int n = 0; n < this->windowSizeN; n++)
-    {
-        currentTimeBasedSeed = chrono::system_clock::now().time_since_epoch().count();
-
-        shuffle(paramDValues.begin(), paramDValues.end(), default_random_engine(currentTimeBasedSeed));
-
-        for (int sigma = 0; sigma < this->alphabet.size(); sigma++)
+        if (this->alphabet.size() > this->paramD)
         {
-            this->tableC[n * this->alphabet.size() + sigma] = paramDValues[sigma];
+            for (int i = this->paramD; i < this->alphabet.size(); i++)
+            {
+                paramDValues.push_back(i % this->paramD);
+            }
+        }
+
+        for (int n = 0; n < this->windowSizeN; n++)
+        {
+            currentTimeBasedSeed = chrono::system_clock::now().time_since_epoch().count();
+
+            shuffle(paramDValues.begin(), paramDValues.end(), default_random_engine(currentTimeBasedSeed));
+
+            for (int sigma = 0; sigma < this->alphabet.size(); sigma++)
+            {
+                this->tableC[n * this->alphabet.size() + sigma] = paramDValues[sigma];
+            }
         }
     }
 

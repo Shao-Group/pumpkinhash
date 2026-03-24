@@ -42,11 +42,13 @@ class PumpkinHash
     int *tableB2;
     int *tableC;
 
+    vector<int*> tablesC;
+
     int returnDPTableIndex(const int, const int, const int, const int, const int);
 
 public:
     PumpkinHash();
-    PumpkinHash(const int, const int, const map<char, int>);
+    PumpkinHash(const int, const int, const map<char, int>, const bool);
     ~PumpkinHash();
 
     void generateTables(const int);
