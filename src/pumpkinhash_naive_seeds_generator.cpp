@@ -51,11 +51,13 @@ int main(int argc, char **argv)
 
     cout << "Generating " << numRepeats << " seeds for sequences in " << dataFileName << " file with D = " << paramD << " and at most " << numMaxEditsE << " edits..." << endl;
 
+    bool doUseTablesC = false;
+
     while (dataFile >> sequence)
     {
         int windowSizeN = sequence.length();
 
-        PumpkinHash pumpkinHash(windowSizeN, paramD, defaultAlphabet);
+        PumpkinHash pumpkinHash(windowSizeN, paramD, defaultAlphabet, doUseTablesC);
 
         seedsFile << sequence << endl;
 

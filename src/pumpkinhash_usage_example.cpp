@@ -6,11 +6,11 @@ int main(int argc, char **argv)
 
     int paramD = 11, tablesFileVersion = 0, numMaxEditsE = 4;
 
-    bool doGenerateEplus1Seeds = false;
+    bool doGenerateEplus1Seeds = false, doUseTablesC = false;
 
     map<char, int> alphabet = {{'A', 0}, {'C', 1}, {'G', 2}, {'T', 3}};
 
-    PumpkinHash pumpkinHash(sequence.length(), paramD, alphabet);
+    PumpkinHash pumpkinHash(sequence.length(), paramD, alphabet, doUseTablesC);
 
     pumpkinHash.generateTables(tablesFileVersion);
 

@@ -2,9 +2,9 @@
 
 int main(int argc, char **argv)
 {
-    if (argc != 6)
+    if (argc != 7)
     {
-        cerr << "Invalid number of command-line arguments provided!\nCorrect usage: ./pumpkinhash_seeds_generator [dataFileName] [paramD] [numRepeats] [numMaxEditsE] [doGenerateEplus1Seeds (0 or 1)]" << endl;
+        cerr << "Invalid number of command-line arguments provided!\nCorrect usage: ./pumpkinhash_seeds_generator [dataFileName] [paramD] [numRepeats] [numMaxEditsE] [doGenerateEplus1Seeds] [doUseTablesC]" << endl;
 
         return 1;
     }
@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 
     int paramD = stoi(argv[2]), numRepeats = stoi(argv[3]), numMaxEditsE = stoi(argv[4]);
 
-    bool doGenerateEplus1Seeds = (stoi(argv[5]) == 0) ? false : true;
+    bool doGenerateEplus1Seeds = (stoi(argv[5]) == 0) ? false : true, doUseTablesC = (stoi(argv[6]) == 0) ? false : true;
 
     map<char, int> defaultAlphabet = {{'A', 0}, {'C', 1}, {'G', 2}, {'T', 3}};
 
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
     {
         int windowSizeN = sequence.length();
 
-        PumpkinHash pumpkinHash(windowSizeN, paramD, defaultAlphabet);
+        PumpkinHash pumpkinHash(windowSizeN, paramD, defaultAlphabet, doUseTablesC);
 
         seedsFile << sequence << endl;
 
