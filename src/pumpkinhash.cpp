@@ -141,7 +141,7 @@ void PumpkinHash::generateTables(const int tablesFileVersion)
 
             for (int i = 0; i < this->paramD; i++)
             {
-                paramDValues[0].push_back(i);
+                paramDValues[0][i] = i;
             }
 
             currentTimeBasedSeed = chrono::system_clock::now().time_since_epoch().count();
