@@ -152,7 +152,7 @@ void PumpkinHash::generateTables(const int tablesFileVersion)
             {
                 for (int j = 0; j < this->paramD; j++)
                 {
-                    paramDValues[i].push_back((paramDValues[0][j] + i) % this->paramD);
+                    paramDValues[i][j] = (paramDValues[0][j] + i) % this->paramD;
                 }
             }
 
