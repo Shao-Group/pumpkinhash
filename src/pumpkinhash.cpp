@@ -127,8 +127,8 @@ void PumpkinHash::generateTables(const int tablesFileVersion)
 
             for (int sigma = 0; sigma < this->alphabet.size(); sigma++)
             {
-                this->tableB1[n * this->paramD * this->alphabet.size() + d * this->alphabet.size() + sigma] = (pairValues[sigma] >> 1) % 2;
-                this->tableB2[n * this->paramD * this->alphabet.size() + d * this->alphabet.size() + sigma] = (pairValues[sigma] >> 0) % 2;
+                this->tableB1[n * this->paramD * this->alphabet.size() + d * this->alphabet.size() + sigma] = ((pairValues[sigma] >> 1) % 2 == 1) ? 1 : -1;
+                this->tableB2[n * this->paramD * this->alphabet.size() + d * this->alphabet.size() + sigma] = ((pairValues[sigma] >> 0) % 2 == 1) ? 1 : -1;
             }
         }
     }
