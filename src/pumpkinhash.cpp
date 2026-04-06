@@ -152,7 +152,7 @@ void PumpkinHash::generateTables(const int tablesFileVersion)
             {
                 for (int j = 0; j < this->paramD; j++)
                 {
-                    paramDValues[i][j] = (paramDValues[0][j] + i) % this->paramD;
+                    paramDValues[i][j] = paramDValues[0][(i + j) % this->paramD];
                 }
             }
 
@@ -160,11 +160,22 @@ void PumpkinHash::generateTables(const int tablesFileVersion)
 
             shuffle(paramDValues.begin(), paramDValues.end(), default_random_engine(currentTimeBasedSeed));
 
+            vector<int> paramDValuesColumnIndices(this->paramD, -1);
+
+            for (int i = 0; i < this->paramD; i++)
+            {
+                paramDValuesColumnIndices[i] = i;
+            }
+
+            currentTimeBasedSeed = chrono::system_clock::now().time_since_epoch().count();
+
+            shuffle(paramDValuesColumnIndices.begin(), paramDValuesColumnIndices.end(), default_random_engine(currentTimeBasedSeed));
+
             for (int sigma = 0; sigma < this->alphabet.size(); sigma++)
             {
                 for (int d = 0; d < this->paramD; d++)
                 {
-                    this->tablesC[d][n * this->alphabet.size() + sigma] = paramDValues[sigma][d];
+                    this->tablesC[d][n * this->alphabet.size() + sigma] = paramDValues[sigma][paramDValuesColumnIndices[d]];
                 }
             }
         }
