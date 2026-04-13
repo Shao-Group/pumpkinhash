@@ -4,7 +4,7 @@ int main(int argc, char **argv)
 {
     if (argc != 7)
     {
-        cerr << "Invalid number of command-line arguments provided!\nCorrect usage: ./pumpkinhash_seeds_generator [dataFileName] [paramD] [numRepeats] [numMaxEditsE] [doGenerateEplus1Seeds] [doUseTablesC]" << endl;
+        cerr << "Invalid number of command-line arguments provided!\nCorrect usage: ./pumpkinhash_new_seeds_generator [dataFileName] [paramD] [numRepeats] [numMaxEditsE] [doGenerateEplus1Seeds] [doUseTablesC]" << endl;
 
         return 1;
     }
@@ -65,7 +65,7 @@ int main(int argc, char **argv)
         {
             pumpkinHash.loadTables(repeat);
 
-            vector<Seed> seeds = pumpkinHash.solveDP(sequence, numMaxEditsE, doGenerateEplus1Seeds);
+            vector<Seed> seeds = pumpkinHash.solveDPNew(sequence, numMaxEditsE, doGenerateEplus1Seeds);
 
             for (int seedIdx = 0; seedIdx < seeds.size(); seedIdx++)
             {

@@ -56,6 +56,7 @@ public:
 
     Seed solveDPNaive(const string, const int);
     vector<Seed> solveDP(const string, const int, const bool);
+    vector<Seed> solveDPNew(const string, const int, const bool);
 };
 
 #endif
