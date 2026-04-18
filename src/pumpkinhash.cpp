@@ -135,47 +135,24 @@ void PumpkinHash::generateTables(const int tablesFileVersion)
 
     if (this->tableC == nullptr)
     {
+        vector<int> paramDValues;
+
+        for (int i = 0; i < this->paramD; i++)
+        {
+            paramDValues.push_back(i);
+        }
+
         for (int n = 0; n < this->windowSizeN; n++)
         {
-            vector<vector<int>> paramDValues(this->alphabet.size(), vector<int>(this->paramD, -1));
-
-            for (int i = 0; i < this->paramD; i++)
-            {
-                paramDValues[0][i] = i;
-            }
-
-            currentTimeBasedSeed = chrono::system_clock::now().time_since_epoch().count();
-
-            shuffle(paramDValues[0].begin(), paramDValues[0].end(), default_random_engine(currentTimeBasedSeed));
-
-            for (int i = 1; i < this->alphabet.size(); i++)
-            {
-                for (int j = 0; j < this->paramD; j++)
-                {
-                    paramDValues[i][j] = paramDValues[0][(i + j) % this->paramD];
-                }
-            }
-
-            currentTimeBasedSeed = chrono::system_clock::now().time_since_epoch().count();
-
-            shuffle(paramDValues.begin(), paramDValues.end(), default_random_engine(currentTimeBasedSeed));
-
-            vector<int> paramDValuesColumnIndices(this->paramD, -1);
-
-            for (int i = 0; i < this->paramD; i++)
-            {
-                paramDValuesColumnIndices[i] = i;
-            }
-
-            currentTimeBasedSeed = chrono::system_clock::now().time_since_epoch().count();
-
-            shuffle(paramDValuesColumnIndices.begin(), paramDValuesColumnIndices.end(), default_random_engine(currentTimeBasedSeed));
-
             for (int sigma = 0; sigma < this->alphabet.size(); sigma++)
             {
+                currentTimeBasedSeed = chrono::system_clock::now().time_since_epoch().count();
+
+                shuffle(paramDValues.begin(), paramDValues.end(), default_random_engine(currentTimeBasedSeed));
+
                 for (int d = 0; d < this->paramD; d++)
                 {
-                    this->tablesC[d][n * this->alphabet.size() + sigma] = paramDValues[sigma][paramDValuesColumnIndices[d]];
+                    this->tablesC[d][n * this->alphabet.size() + sigma] = paramDValues[d];
                 }
             }
         }
