@@ -667,27 +667,30 @@ vector<Seed> PumpkinHash::solveDP(const string sequence, const int numMaxEditsE,
     DpTableCell *dpTableTmin = new DpTableCell[(this->windowSizeN + 1) * (numMaxEditsE + 1) * (numMaxEditsE + 2) * this->paramD / 2];
     DpTableCell *dpTableTmax = new DpTableCell[(this->windowSizeN + 1) * (numMaxEditsE + 1) * (numMaxEditsE + 2) * this->paramD / 2];
 
-    for (int es = 0; es <= numMaxEditsE; es++)
+    for (int n = 0; n <= this->windowSizeN; n++)
     {
-        for (int ed = 0; ed <= numMaxEditsE - es; ed++)
+        for (int es = 0; es <= numMaxEditsE; es++)
         {
-            for (int d = 0; d < this->paramD; d++)
+            for (int ed = 0; ed <= numMaxEditsE - es; ed++)
             {
-                if (es == 0 && ed == 0 && d == 0)
+                for (int d = 0; d < this->paramD; d++)
                 {
-                    dpTableTmin[this->returnDPTableIndex(numMaxEditsE, 0, es, ed, d)].dpTableValue = 0;
-                    dpTableTmax[this->returnDPTableIndex(numMaxEditsE, 0, es, ed, d)].dpTableValue = 0;
+                    if (n == 0 && es == 0 && ed == 0 && d == 0)
+                    {
+                        dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = 0;
+                        dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = 0;
 
-                    dpTableTmin[this->returnDPTableIndex(numMaxEditsE, 0, es, ed, d)].dpTableSeed = 0;
-                    dpTableTmax[this->returnDPTableIndex(numMaxEditsE, 0, es, ed, d)].dpTableSeed = 0;
-                }
-                else
-                {
-                    dpTableTmin[this->returnDPTableIndex(numMaxEditsE, 0, es, ed, d)].dpTableValue = POS_INF;
-                    dpTableTmax[this->returnDPTableIndex(numMaxEditsE, 0, es, ed, d)].dpTableValue = NEG_INF;
+                        dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = 0;
+                        dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = 0;
+                    }
+                    else
+                    {
+                        dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = POS_INF;
+                        dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = NEG_INF;
 
-                    dpTableTmin[this->returnDPTableIndex(numMaxEditsE, 0, es, ed, d)].dpTableSeed = UINT64_MAX;
-                    dpTableTmax[this->returnDPTableIndex(numMaxEditsE, 0, es, ed, d)].dpTableSeed = UINT64_MAX;
+                        dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = UINT64_MAX;
+                        dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = UINT64_MAX;
+                    }
                 }
             }
         }
@@ -697,7 +700,7 @@ vector<Seed> PumpkinHash::solveDP(const string sequence, const int numMaxEditsE,
     {
         for (int es = 0; es <= numMaxEditsE; es++)
         {
-            for (int ed = 0; ed <= numMaxEditsE - es; ed++)
+            for (int ed = 0; ed <= numMaxEditsE - es && ed <= n - 1; ed++)
             {
                 for (int d = 0; d < this->paramD; d++)
                 {
@@ -1099,27 +1102,30 @@ vector<Seed> PumpkinHash::solveDPNew(const string sequence, const int numMaxEdit
     DpTableCell *dpTableTmin = new DpTableCell[(this->windowSizeN + 1) * (numMaxEditsE + 1) * (numMaxEditsE + 2) * this->paramD / 2];
     DpTableCell *dpTableTmax = new DpTableCell[(this->windowSizeN + 1) * (numMaxEditsE + 1) * (numMaxEditsE + 2) * this->paramD / 2];
 
-    for (int es = 0; es <= numMaxEditsE; es++)
+    for (int n = 0; n <= this->windowSizeN; n++)
     {
-        for (int ed = 0; ed <= numMaxEditsE - es; ed++)
+        for (int es = 0; es <= numMaxEditsE; es++)
         {
-            for (int d = 0; d < this->paramD; d++)
+            for (int ed = 0; ed <= numMaxEditsE - es; ed++)
             {
-                if (es == 0 && ed == 0 && d == 0)
+                for (int d = 0; d < this->paramD; d++)
                 {
-                    dpTableTmin[this->returnDPTableIndex(numMaxEditsE, 0, es, ed, d)].dpTableValue = 0;
-                    dpTableTmax[this->returnDPTableIndex(numMaxEditsE, 0, es, ed, d)].dpTableValue = 0;
+                    if (n == 0 && es == 0 && ed == 0 && d == 0)
+                    {
+                        dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = 0;
+                        dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = 0;
 
-                    dpTableTmin[this->returnDPTableIndex(numMaxEditsE, 0, es, ed, d)].dpTableSeed = 0;
-                    dpTableTmax[this->returnDPTableIndex(numMaxEditsE, 0, es, ed, d)].dpTableSeed = 0;
-                }
-                else
-                {
-                    dpTableTmin[this->returnDPTableIndex(numMaxEditsE, 0, es, ed, d)].dpTableValue = POS_INF;
-                    dpTableTmax[this->returnDPTableIndex(numMaxEditsE, 0, es, ed, d)].dpTableValue = NEG_INF;
+                        dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = 0;
+                        dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = 0;
+                    }
+                    else
+                    {
+                        dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = POS_INF;
+                        dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = NEG_INF;
 
-                    dpTableTmin[this->returnDPTableIndex(numMaxEditsE, 0, es, ed, d)].dpTableSeed = UINT64_MAX;
-                    dpTableTmax[this->returnDPTableIndex(numMaxEditsE, 0, es, ed, d)].dpTableSeed = UINT64_MAX;
+                        dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = UINT64_MAX;
+                        dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = UINT64_MAX;
+                    }
                 }
             }
         }
@@ -1129,7 +1135,7 @@ vector<Seed> PumpkinHash::solveDPNew(const string sequence, const int numMaxEdit
     {
         for (int es = 0; es <= numMaxEditsE; es++)
         {
-            for (int ed = 0; ed <= numMaxEditsE - es; ed++)
+            for (int ed = 0; ed <= numMaxEditsE - es && ed <= n - 1; ed++)
             {
                 for (int d = 0; d < this->paramD; d++)
                 {
