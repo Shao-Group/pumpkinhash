@@ -21,7 +21,7 @@ PumpkinHash::PumpkinHash() : PumpkinHash(20, 11, {{'A', 0}, {'C', 1}, {'G', 2}, 
     // Calling parameterized constructor from default constructor with default arguments
 }
 
-PumpkinHash::PumpkinHash(const int windowSizeN, const int paramD, const map<char, int> alphabet, const bool doUseTablesC)
+PumpkinHash::PumpkinHash(const int windowSizeN, const int paramD, const map<char, int> alphabet, const bool doUsetablesC)
 {
     this->windowSizeN = windowSizeN;
     this->paramD = paramD;
@@ -31,7 +31,7 @@ PumpkinHash::PumpkinHash(const int windowSizeN, const int paramD, const map<char
     this->tableB1 = new int[windowSizeN * paramD * alphabet.size()];
     this->tableB2 = new int[windowSizeN * paramD * alphabet.size()];
 
-    if (doUseTablesC)
+    if (doUsetablesC)
     {
         this->tableC = nullptr;
 
@@ -343,9 +343,12 @@ void PumpkinHash::loadTables(const int tablesFileVersion)
         {
             for (int n = 0; n < this->windowSizeN; n++)
             {
-                for (int sigma = 0; sigma < this->alphabet.size(); sigma++)
+                for (int sigma = 0, tablesCEntry; sigma < this->alphabet.size(); sigma++)
                 {
-                    tablesFile >> this->tablesC[d][n * this->alphabet.size() + sigma];
+                    tablesFile >> tablesCEntry;
+
+                    // tablesC in this case functions as an inverse lookup table for the original tablesC
+                    this->tablesC[tablesCEntry][n * this->alphabet.size() + sigma] = d;
                 }
             }
         }
@@ -732,15 +735,7 @@ vector<Seed> PumpkinHash::solveDP(const string sequence, const int numMaxEditsE,
 
                     if (this->tableC == nullptr)
                     {
-                        for (int d_i = 0; d_i < this->paramD; d_i++)
-                        {
-                            if (this->tablesC[d_i][(n - 1 - ed) * this->alphabet.size() + this->alphabet[sequence[n - 1]]] == d)
-                            {
-                                dPrevious = d_i;
-
-                                break;
-                            }
-                        }
+                        dPrevious = this->tablesC[d][(n - 1 - ed) * this->alphabet.size() + this->alphabet[sequence[n - 1]]];
                     }
                     else
                     {
@@ -791,15 +786,7 @@ vector<Seed> PumpkinHash::solveDP(const string sequence, const int numMaxEditsE,
 
                             if (this->tableC == nullptr)
                             {
-                                for (int d_i = 0; d_i < this->paramD; d_i++)
-                                {
-                                    if (this->tablesC[d_i][(n - 1 - ed) * this->alphabet.size() + pair.second] == d)
-                                    {
-                                        dPrevious = d_i;
-
-                                        break;
-                                    }
-                                }
+                                dPrevious = this->tablesC[d][(n - 1 - ed) * this->alphabet.size() + pair.second];
                             }
                             else
                             {
@@ -1167,15 +1154,7 @@ vector<Seed> PumpkinHash::solveDPNew(const string sequence, const int numMaxEdit
 
                     if (this->tableC == nullptr)
                     {
-                        for (int d_i = 0; d_i < this->paramD; d_i++)
-                        {
-                            if (this->tablesC[d_i][(n - 1 - ed) * this->alphabet.size() + this->alphabet[sequence[n - 1]]] == d)
-                            {
-                                dPrevious = d_i;
-
-                                break;
-                            }
-                        }
+                        dPrevious = this->tablesC[d][(n - 1 - ed) * this->alphabet.size() + this->alphabet[sequence[n - 1]]];
                     }
                     else
                     {
@@ -1215,15 +1194,7 @@ vector<Seed> PumpkinHash::solveDPNew(const string sequence, const int numMaxEdit
 
                             if (this->tableC == nullptr)
                             {
-                                for (int d_i = 0; d_i < this->paramD; d_i++)
-                                {
-                                    if (this->tablesC[d_i][(n - 1 - ed) * this->alphabet.size() + pair.second] == d)
-                                    {
-                                        dPrevious = d_i;
-
-                                        break;
-                                    }
-                                }
+                                dPrevious = this->tablesC[d][(n - 1 - ed) * this->alphabet.size() + pair.second];
                             }
                             else
                             {
