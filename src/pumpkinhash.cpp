@@ -72,7 +72,7 @@ void PumpkinHash::generateTables(const int tablesFileVersion)
 
     uniform_int_distribution<int> uniformIntegerDistribution(1 << 5, 1 << 10);
 
-    int tableANumbersSum = 0, tableANumbersCount = this->windowSizeN * this->paramD * this->alphabet.size();
+    int64_t tableANumbersSum = 0, tableANumbersCount = this->windowSizeN * this->paramD * this->alphabet.size();
 
     for (int n = 0; n < this->windowSizeN; n++)
     {
@@ -1086,8 +1086,7 @@ vector<Seed> PumpkinHash::solveDPNew(const string sequence, const int numMaxEdit
         exit(EXIT_FAILURE);
     }
 
-    DpTableCell *dpTableTmin = new DpTableCell[(this->windowSizeN + 1) * (numMaxEditsE + 1) * (numMaxEditsE + 2) * this->paramD / 2];
-    DpTableCell *dpTableTmax = new DpTableCell[(this->windowSizeN + 1) * (numMaxEditsE + 1) * (numMaxEditsE + 2) * this->paramD / 2];
+    DpTableCell *dpTableTdp = new DpTableCell[(this->windowSizeN + 1) * (numMaxEditsE + 1) * (numMaxEditsE + 2) * this->paramD / 2];
 
     for (int n = 0; n <= this->windowSizeN; n++)
     {
@@ -1099,19 +1098,13 @@ vector<Seed> PumpkinHash::solveDPNew(const string sequence, const int numMaxEdit
                 {
                     if (n == 0 && es == 0 && ed == 0 && d == 0)
                     {
-                        dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = 0;
-                        dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = 0;
-
-                        dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = 0;
-                        dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = 0;
+                        dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = 0;
+                        dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = 0;
                     }
                     else
                     {
-                        dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = POS_INF;
-                        dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = NEG_INF;
-
-                        dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = UINT64_MAX;
-                        dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = UINT64_MAX;
+                        dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = NEG_INF;
+                        dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = UINT64_MAX;
                     }
                 }
             }
@@ -1127,28 +1120,21 @@ vector<Seed> PumpkinHash::solveDPNew(const string sequence, const int numMaxEdit
                 for (int d = 0; d < this->paramD; d++)
                 {
                     // Case-1: base s_n deleted
-                    DpTableCell dpTableTminCase1Del, dpTableTmaxCase1Del;
+                    DpTableCell dpTableTdpCase1Del;
 
-                    dpTableTminCase1Del.dpTableValue = POS_INF;
-                    dpTableTmaxCase1Del.dpTableValue = NEG_INF;
-
-                    dpTableTminCase1Del.dpTableSeed = UINT64_MAX;
-                    dpTableTmaxCase1Del.dpTableSeed = UINT64_MAX;
+                    dpTableTdpCase1Del.dpTableValue = NEG_INF;
+                    dpTableTdpCase1Del.dpTableSeed = UINT64_MAX;
 
                     if (ed != 0)
                     {
-                        dpTableTminCase1Del.dpTableValue = dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n - 1, es, ed - 1, d)].dpTableValue;
-                        dpTableTmaxCase1Del.dpTableValue = dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n - 1, es, ed - 1, d)].dpTableValue;
-
-                        dpTableTminCase1Del.dpTableSeed = (dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n - 1, es, ed - 1, d)].dpTableSeed == UINT64_MAX) ? UINT64_MAX : (dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n - 1, es, ed - 1, d)].dpTableSeed << 3) | this->alphabet.size();
-                        dpTableTmaxCase1Del.dpTableSeed = (dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n - 1, es, ed - 1, d)].dpTableSeed == UINT64_MAX) ? UINT64_MAX : (dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n - 1, es, ed - 1, d)].dpTableSeed << 3) | this->alphabet.size();
+                        dpTableTdpCase1Del.dpTableValue = dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n - 1, es, ed - 1, d)].dpTableValue;
+                        dpTableTdpCase1Del.dpTableSeed = (dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n - 1, es, ed - 1, d)].dpTableSeed == UINT64_MAX) ? UINT64_MAX : (dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n - 1, es, ed - 1, d)].dpTableSeed << 3) | this->alphabet.size();
                     }
 
                     // Case-2: base s_n retained
-                    DpTableCell dpTableTminCase2Ret, dpTableTmaxCase2Ret;
-
-                    dpTableTminCase2Ret.dpTableValue = this->tableA[(n - 1 - ed) * this->paramD * this->alphabet.size() + d * this->alphabet.size() + this->alphabet[sequence[n - 1]]];
-                    dpTableTmaxCase2Ret.dpTableValue = this->tableA[(n - 1 - ed) * this->paramD * this->alphabet.size() + d * this->alphabet.size() + this->alphabet[sequence[n - 1]]];
+                    DpTableCell dpTableTdpCase2Ret;
+                    
+                    dpTableTdpCase2Ret.dpTableValue = this->tableA[(n - 1 - ed) * this->paramD * this->alphabet.size() + d * this->alphabet.size() + this->alphabet[sequence[n - 1]]];
 
                     int dPrevious = -1;
 
@@ -1161,20 +1147,14 @@ vector<Seed> PumpkinHash::solveDPNew(const string sequence, const int numMaxEdit
                         dPrevious = (d - this->tableC[(n - 1 - ed) * this->alphabet.size() + this->alphabet[sequence[n - 1]]] + this->paramD) % this->paramD;
                     }
 
-                    dpTableTminCase2Ret.dpTableValue = (dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n - 1, es, ed, dPrevious)].dpTableValue == POS_INF) ? POS_INF : (dpTableTminCase2Ret.dpTableValue + dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n - 1, es, ed, dPrevious)].dpTableValue);
-                    dpTableTmaxCase2Ret.dpTableValue = (dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n - 1, es, ed, dPrevious)].dpTableValue == NEG_INF) ? NEG_INF : (dpTableTmaxCase2Ret.dpTableValue + dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n - 1, es, ed, dPrevious)].dpTableValue);
-
-                    dpTableTminCase2Ret.dpTableSeed = (dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n - 1, es, ed, dPrevious)].dpTableSeed == UINT64_MAX) ? UINT64_MAX : (dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n - 1, es, ed, dPrevious)].dpTableSeed << 3) | this->alphabet[sequence[n - 1]];
-                    dpTableTmaxCase2Ret.dpTableSeed = (dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n - 1, es, ed, dPrevious)].dpTableSeed == UINT64_MAX) ? UINT64_MAX : (dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n - 1, es, ed, dPrevious)].dpTableSeed << 3) | this->alphabet[sequence[n - 1]];
+                    dpTableTdpCase2Ret.dpTableValue = (dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n - 1, es, ed, dPrevious)].dpTableValue == NEG_INF) ? NEG_INF : (dpTableTdpCase2Ret.dpTableValue + dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n - 1, es, ed, dPrevious)].dpTableValue);
+                    dpTableTdpCase2Ret.dpTableSeed = (dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n - 1, es, ed, dPrevious)].dpTableSeed == UINT64_MAX) ? UINT64_MAX : (dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n - 1, es, ed, dPrevious)].dpTableSeed << 3) | this->alphabet[sequence[n - 1]];
 
                     // Case-3: base s_n substituted with s'_n
-                    DpTableCell dpTableTminCase3Sub, dpTableTmaxCase3Sub;
+                    DpTableCell dpTableTdpCase3Sub;
 
-                    dpTableTminCase3Sub.dpTableValue = POS_INF;
-                    dpTableTmaxCase3Sub.dpTableValue = NEG_INF;
-
-                    dpTableTminCase3Sub.dpTableSeed = UINT64_MAX;
-                    dpTableTmaxCase3Sub.dpTableSeed = UINT64_MAX;
+                    dpTableTdpCase3Sub.dpTableValue = NEG_INF;
+                    dpTableTdpCase3Sub.dpTableSeed = UINT64_MAX;
 
                     if (es != 0)
                     {
@@ -1185,10 +1165,9 @@ vector<Seed> PumpkinHash::solveDPNew(const string sequence, const int numMaxEdit
                                 continue;
                             }
 
-                            DpTableCell dpTableTminCase3SubTemp, dpTableTmaxCase3SubTemp;
+                            DpTableCell dpTableTdpCase3SubTemp;
 
-                            dpTableTminCase3SubTemp.dpTableValue = this->tableA[(n - 1 - ed) * this->paramD * this->alphabet.size() + d * this->alphabet.size() + pair.second];
-                            dpTableTmaxCase3SubTemp.dpTableValue = this->tableA[(n - 1 - ed) * this->paramD * this->alphabet.size() + d * this->alphabet.size() + pair.second];
+                            dpTableTdpCase3SubTemp.dpTableValue = this->tableA[(n - 1 - ed) * this->paramD * this->alphabet.size() + d * this->alphabet.size() + pair.second];
 
                             dPrevious = -1;
 
@@ -1201,77 +1180,41 @@ vector<Seed> PumpkinHash::solveDPNew(const string sequence, const int numMaxEdit
                                 dPrevious = (d - this->tableC[(n - 1 - ed) * this->alphabet.size() + pair.second] + this->paramD) % this->paramD;
                             }
 
-                            dpTableTminCase3SubTemp.dpTableValue = (dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n - 1, es - 1, ed, dPrevious)].dpTableValue == POS_INF) ? POS_INF : (dpTableTminCase3SubTemp.dpTableValue + dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n - 1, es - 1, ed, dPrevious)].dpTableValue);
-                            dpTableTmaxCase3SubTemp.dpTableValue = (dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n - 1, es - 1, ed, dPrevious)].dpTableValue == NEG_INF) ? NEG_INF : (dpTableTmaxCase3SubTemp.dpTableValue + dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n - 1, es - 1, ed, dPrevious)].dpTableValue);
+                            dpTableTdpCase3SubTemp.dpTableValue = (dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n - 1, es - 1, ed, dPrevious)].dpTableValue == NEG_INF) ? NEG_INF : (dpTableTdpCase3SubTemp.dpTableValue + dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n - 1, es - 1, ed, dPrevious)].dpTableValue);
+                            dpTableTdpCase3SubTemp.dpTableSeed = (dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n - 1, es - 1, ed, dPrevious)].dpTableSeed == UINT64_MAX) ? UINT64_MAX : (dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n - 1, es - 1, ed, dPrevious)].dpTableSeed << 3) | pair.second;
 
-                            dpTableTminCase3SubTemp.dpTableSeed = (dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n - 1, es - 1, ed, dPrevious)].dpTableSeed == UINT64_MAX) ? UINT64_MAX : (dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n - 1, es - 1, ed, dPrevious)].dpTableSeed << 3) | pair.second;
-                            dpTableTmaxCase3SubTemp.dpTableSeed = (dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n - 1, es - 1, ed, dPrevious)].dpTableSeed == UINT64_MAX) ? UINT64_MAX : (dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n - 1, es - 1, ed, dPrevious)].dpTableSeed << 3) | pair.second;
-
-                            if (dpTableTminCase3SubTemp.dpTableValue < dpTableTminCase3Sub.dpTableValue)
+                            if (dpTableTdpCase3SubTemp.dpTableValue > dpTableTdpCase3Sub.dpTableValue)
                             {
-                                dpTableTminCase3Sub.dpTableValue = dpTableTminCase3SubTemp.dpTableValue;
-                                dpTableTminCase3Sub.dpTableSeed = dpTableTminCase3SubTemp.dpTableSeed;
-                            }
-
-                            if (dpTableTmaxCase3SubTemp.dpTableValue > dpTableTmaxCase3Sub.dpTableValue)
-                            {
-                                dpTableTmaxCase3Sub.dpTableValue = dpTableTmaxCase3SubTemp.dpTableValue;
-                                dpTableTmaxCase3Sub.dpTableSeed = dpTableTmaxCase3SubTemp.dpTableSeed;
+                                dpTableTdpCase3Sub.dpTableValue = dpTableTdpCase3SubTemp.dpTableValue;
+                                dpTableTdpCase3Sub.dpTableSeed = dpTableTdpCase3SubTemp.dpTableSeed;
                             }
                         }
                     }
 
-                    if (dpTableTminCase1Del.dpTableValue < dpTableTminCase2Ret.dpTableValue)
+                    if (dpTableTdpCase1Del.dpTableValue > dpTableTdpCase2Ret.dpTableValue)
                     {
-                        if (dpTableTminCase1Del.dpTableValue < dpTableTminCase3Sub.dpTableValue)
+                        if (dpTableTdpCase1Del.dpTableValue > dpTableTdpCase3Sub.dpTableValue)
                         {
-                            dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = dpTableTminCase1Del.dpTableValue;
-                            dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = dpTableTminCase1Del.dpTableSeed;
+                            dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = dpTableTdpCase1Del.dpTableValue;
+                            dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = dpTableTdpCase1Del.dpTableSeed;
                         }
                         else
                         {
-                            dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = dpTableTminCase3Sub.dpTableValue;
-                            dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = dpTableTminCase3Sub.dpTableSeed;
+                            dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = dpTableTdpCase3Sub.dpTableValue;
+                            dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = dpTableTdpCase3Sub.dpTableSeed;
                         }
                     }
                     else
                     {
-                        if (dpTableTminCase2Ret.dpTableValue < dpTableTminCase3Sub.dpTableValue)
+                        if (dpTableTdpCase2Ret.dpTableValue > dpTableTdpCase3Sub.dpTableValue)
                         {
-                            dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = dpTableTminCase2Ret.dpTableValue;
-                            dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = dpTableTminCase2Ret.dpTableSeed;
+                            dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = dpTableTdpCase2Ret.dpTableValue;
+                            dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = dpTableTdpCase2Ret.dpTableSeed;
                         }
                         else
                         {
-                            dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = dpTableTminCase3Sub.dpTableValue;
-                            dpTableTmin[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = dpTableTminCase3Sub.dpTableSeed;
-                        }
-                    }
-
-                    if (dpTableTmaxCase1Del.dpTableValue > dpTableTmaxCase2Ret.dpTableValue)
-                    {
-                        if (dpTableTmaxCase1Del.dpTableValue > dpTableTmaxCase3Sub.dpTableValue)
-                        {
-                            dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = dpTableTmaxCase1Del.dpTableValue;
-                            dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = dpTableTmaxCase1Del.dpTableSeed;
-                        }
-                        else
-                        {
-                            dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = dpTableTmaxCase3Sub.dpTableValue;
-                            dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = dpTableTmaxCase3Sub.dpTableSeed;
-                        }
-                    }
-                    else
-                    {
-                        if (dpTableTmaxCase2Ret.dpTableValue > dpTableTmaxCase3Sub.dpTableValue)
-                        {
-                            dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = dpTableTmaxCase2Ret.dpTableValue;
-                            dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = dpTableTmaxCase2Ret.dpTableSeed;
-                        }
-                        else
-                        {
-                            dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = dpTableTmaxCase3Sub.dpTableValue;
-                            dpTableTmax[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = dpTableTmaxCase3Sub.dpTableSeed;
+                            dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableValue = dpTableTdpCase3Sub.dpTableValue;
+                            dpTableTdp[this->returnDPTableIndex(numMaxEditsE, n, es, ed, d)].dpTableSeed = dpTableTdpCase3Sub.dpTableSeed;
                         }
                     }
                 }
@@ -1289,39 +1232,10 @@ vector<Seed> PumpkinHash::solveDPNew(const string sequence, const int numMaxEdit
         {
             for (int es = 0; es <= numMaxEditsE; es++)
             {
-                dpTableT[es][d].dpTableValue = NEG_INF;
-                dpTableT[es][d].dpTableSeed = UINT64_MAX;
-
                 int ed = numMaxEditsE - es;
 
-                if (dpTableTmin[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue == POS_INF && dpTableTmax[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue == NEG_INF)
-                {
-                    dpTableT[es][d].dpTableValue = NEG_INF;
-                    dpTableT[es][d].dpTableSeed = UINT64_MAX;
-                }
-                else if (dpTableTmin[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue < POS_INF && dpTableTmax[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue == NEG_INF)
-                {
-                    dpTableT[es][d].dpTableValue = abs(dpTableTmin[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue);
-                    dpTableT[es][d].dpTableSeed = dpTableTmin[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableSeed;
-                }
-                else if (dpTableTmin[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue == POS_INF && dpTableTmax[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue > NEG_INF)
-                {
-                    dpTableT[es][d].dpTableValue = abs(dpTableTmax[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue);
-                    dpTableT[es][d].dpTableSeed = dpTableTmax[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableSeed;
-                }
-                else
-                {
-                    if (abs(dpTableTmin[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue) > abs(dpTableTmax[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue))
-                    {
-                        dpTableT[es][d].dpTableValue = abs(dpTableTmin[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue);
-                        dpTableT[es][d].dpTableSeed = dpTableTmin[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableSeed;
-                    }
-                    else
-                    {
-                        dpTableT[es][d].dpTableValue = abs(dpTableTmax[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue);
-                        dpTableT[es][d].dpTableSeed = dpTableTmax[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableSeed;
-                    }
-                }
+                dpTableT[es][d].dpTableValue = (dpTableTdp[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue == NEG_INF) ? NEG_INF : abs(dpTableTdp[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue);
+                dpTableT[es][d].dpTableSeed = (dpTableTdp[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue == NEG_INF) ? UINT64_MAX : dpTableTdp[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableSeed;
             }
         }
 
@@ -1387,34 +1301,8 @@ vector<Seed> PumpkinHash::solveDPNew(const string sequence, const int numMaxEdit
                 {
                     DpTableCell dpTableTd;
 
-                    if (dpTableTmin[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue == POS_INF && dpTableTmax[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue == NEG_INF)
-                    {
-                        dpTableTd.dpTableValue = NEG_INF;
-                        dpTableTd.dpTableSeed = UINT64_MAX;
-                    }
-                    else if (dpTableTmin[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue < POS_INF && dpTableTmax[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue == NEG_INF)
-                    {
-                        dpTableTd.dpTableValue = abs(dpTableTmin[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue);
-                        dpTableTd.dpTableSeed = dpTableTmin[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableSeed;
-                    }
-                    else if (dpTableTmin[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue == POS_INF && dpTableTmax[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue > NEG_INF)
-                    {
-                        dpTableTd.dpTableValue = abs(dpTableTmax[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue);
-                        dpTableTd.dpTableSeed = dpTableTmax[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableSeed;
-                    }
-                    else
-                    {
-                        if (abs(dpTableTmin[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue) > abs(dpTableTmax[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue))
-                        {
-                            dpTableTd.dpTableValue = abs(dpTableTmin[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue);
-                            dpTableTd.dpTableSeed = dpTableTmin[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableSeed;
-                        }
-                        else
-                        {
-                            dpTableTd.dpTableValue = abs(dpTableTmax[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue);
-                            dpTableTd.dpTableSeed = dpTableTmax[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableSeed;
-                        }
-                    }
+                    dpTableTd.dpTableValue = (dpTableTdp[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue == NEG_INF) ? NEG_INF : abs(dpTableTdp[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue);
+                    dpTableTd.dpTableSeed = (dpTableTdp[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableValue == NEG_INF) ? UINT64_MAX : dpTableTdp[this->returnDPTableIndex(numMaxEditsE, this->windowSizeN, es, ed, d)].dpTableSeed;
 
                     if (dpTableTd.dpTableValue > dpTableT[d].dpTableValue)
                     {
@@ -1470,8 +1358,7 @@ vector<Seed> PumpkinHash::solveDPNew(const string sequence, const int numMaxEdit
         seeds.push_back(seed);
     }
 
-    delete[] dpTableTmin;
-    delete[] dpTableTmax;
+    delete[] dpTableTdp;
 
     return seeds;
 }
