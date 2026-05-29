@@ -1,21 +1,5 @@
 #include "pumpkinhash.hpp"
 
-int PumpkinHash::returnDPTableIndex(const int numMaxEditsE, const int n, const int es, const int ed, const int d)
-{
-    int dpTableIndex = n * (numMaxEditsE + 1) * (numMaxEditsE + 2) * this->paramD / 2;
-
-    int esSummand = 0;
-
-    for (int summand = numMaxEditsE + 1; summand > numMaxEditsE + 1 - es; summand--)
-    {
-        esSummand += summand;
-    }
-
-    dpTableIndex += (esSummand + ed) * this->paramD + d;
-
-    return dpTableIndex;
-}
-
 PumpkinHash::PumpkinHash() : PumpkinHash(20, 11, {{'A', 0}, {'C', 1}, {'G', 2}, {'T', 3}}, false)
 {
     // Calling parameterized constructor from default constructor with default arguments

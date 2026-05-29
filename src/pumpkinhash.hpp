@@ -59,4 +59,11 @@ public:
     vector<Seed> solveDPNew(const string, const int, const bool);
 };
 
+inline int PumpkinHash::returnDPTableIndex(const int numMaxEditsE, const int n, const int es, const int ed, const int d)
+{
+    int dpTableIndex = n * (numMaxEditsE + 1) * (numMaxEditsE + 2) * this->paramD / 2 + (es * (2 * (numMaxEditsE + 1) - (es - 1)) / 2 + ed) * this->paramD + d;
+
+    return dpTableIndex;
+}
+
 #endif
