@@ -1,22 +1,12 @@
 #ifndef PUMPKINHASH_HPP
 #define PUMPKINHASH_HPP
 
-#include <algorithm>
-#include <chrono>
 #include <cstdint>
-#include <cstdlib>
-#include <filesystem>
-#include <fstream>
-#include <iostream>
 #include <map>
-#include <random>
 #include <string>
 #include <vector>
 
 using namespace std;
-
-#define POS_INF numeric_limits<int>::max()
-#define NEG_INF numeric_limits<int>::min()
 
 struct DpTableCell
 {
@@ -54,9 +44,7 @@ public:
     void generateTables(const int);
     void loadTables(const int);
 
-    Seed solveDPNaive(const string, const int);
-    vector<Seed> solveDP(const string, const int, const bool);
-    vector<Seed> solveDPNew(const string, const int, const bool);
+    vector<Seed> solveDP(const string, const int, const bool, const bool useTableB = false);
 };
 
 inline int PumpkinHash::returnDPTableIndex(const int numMaxEditsE, const int n, const int es, const int ed, const int d)

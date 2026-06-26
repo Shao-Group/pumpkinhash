@@ -1,5 +1,10 @@
 #include "pumpkinhash.hpp"
 
+#include <cstdlib>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+
 int main(int argc, char **argv)
 {
     if (argc != 7)
@@ -65,7 +70,7 @@ int main(int argc, char **argv)
         {
             pumpkinHash.loadTables(repeat);
 
-            vector<Seed> seeds = pumpkinHash.solveDP(sequence, numMaxEditsE, doGenerateEplus1Seeds);
+            vector<Seed> seeds = pumpkinHash.solveDP(sequence, numMaxEditsE, doGenerateEplus1Seeds, true);
 
             for (int seedIdx = 0; seedIdx < seeds.size(); seedIdx++)
             {

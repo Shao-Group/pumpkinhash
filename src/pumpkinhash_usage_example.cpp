@@ -1,5 +1,7 @@
 #include "pumpkinhash.hpp"
 
+#include <iostream>
+
 int main(int argc, char **argv)
 {
     string sequence = "AAAAAAAAAAAAAAAAAAAA";
@@ -16,7 +18,7 @@ int main(int argc, char **argv)
 
     pumpkinHash.loadTables(tablesFileVersion);
 
-    vector<Seed> seeds = pumpkinHash.solveDP(sequence, numMaxEditsE, doGenerateEplus1Seeds);
+    vector<Seed> seeds = pumpkinHash.solveDP(sequence, numMaxEditsE, doGenerateEplus1Seeds, true);
 
     cout << seeds[0].psi << ", " << seeds[0].omega << ", " << seeds[0].seed << endl;
 

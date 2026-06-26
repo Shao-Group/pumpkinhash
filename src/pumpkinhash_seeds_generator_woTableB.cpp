@@ -1,10 +1,15 @@
 #include "pumpkinhash.hpp"
 
+#include <cstdlib>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+
 int main(int argc, char **argv)
 {
-    if (argc != 5)
+    if (argc != 7)
     {
-        cerr << "Invalid number of command-line arguments provided!\nCorrect usage: ./pumpkinhash_naive_seeds_generator [dataFileName] [paramD] [numRepeats] [numMaxEditsE]" << endl;
+        cerr << "Invalid number of command-line arguments provided!\nCorrect usage: ./pumpkinhash_seeds_woTableB_generator [dataFileName] [paramD] [numRepeats] [numMaxEditsE] [doGenerateEplus1Seeds] [doUseTablesC]" << endl;
 
         return 1;
     }
@@ -24,6 +29,8 @@ int main(int argc, char **argv)
 
     int paramD = stoi(argv[2]), numRepeats = stoi(argv[3]), numMaxEditsE = stoi(argv[4]);
 
+    bool doGenerateEplus1Seeds = (stoi(argv[5]) == 0) ? false : true, doUseTablesC = (stoi(argv[6]) == 0) ? false : true;
+
     map<char, int> defaultAlphabet = {{'A', 0}, {'C', 1}, {'G', 2}, {'T', 3}};
 
     string seedsFileFolderPath = string("..") + filesystem::path::preferred_separator + string("seeds");
@@ -38,7 +45,7 @@ int main(int argc, char **argv)
         }
     }
 
-    string seedsFilePath = seedsFileFolderPath + filesystem::path::preferred_separator + string("seeds_") + dataFileName;
+    string seedsFilePath = seedsFileFolderPath + filesystem::path::preferred_separator + string("seeds_") + dataFileName + string("_paramD") + to_string(paramD) + string("_numRepeats") + to_string(numRepeats) + string("_numMaxEditsE") + to_string(numMaxEditsE) + string("_doGenerateEplus1Seeds=") + to_string(doGenerateEplus1Seeds) + string("_doUseTablesC=") + to_string(doUseTablesC);
 
     ofstream seedsFile(seedsFilePath);
 
@@ -49,9 +56,7 @@ int main(int argc, char **argv)
 
     string sequence;
 
-    cout << "Generating " << numRepeats << " seeds for sequences in " << dataFileName << " file with D = " << paramD << " and at most " << numMaxEditsE << " edits..." << endl;
-
-    bool doUseTablesC = false;
+    cout << "Generating " << numRepeats * (doGenerateEplus1Seeds ? numMaxEditsE + 1 : 1) << " seeds for sequences in " << dataFileName << " file with D = " << paramD << " and at most " << numMaxEditsE << " edits..." << endl;
 
     while (dataFile >> sequence)
     {
@@ -65,9 +70,12 @@ int main(int argc, char **argv)
         {
             pumpkinHash.loadTables(repeat);
 
-            Seed seed = pumpkinHash.solveDPNaive(sequence, numMaxEditsE);
+            vector<Seed> seeds = pumpkinHash.solveDP(sequence, numMaxEditsE, doGenerateEplus1Seeds);
 
-            seedsFile << repeat << "," << seed.psi << "," << seed.omega << "," << seed.seed << endl;
+            for (int seedIdx = 0; seedIdx < seeds.size(); seedIdx++)
+            {
+                seedsFile << repeat << "," << seeds[seedIdx].psi << "," << seeds[seedIdx].omega << "," << seeds[seedIdx].seed << endl;
+            }
         }
     }
 
