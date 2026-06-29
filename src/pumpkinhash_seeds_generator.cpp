@@ -1,7 +1,7 @@
 #include "pumpkinhash.hpp"
+#include "path_utils.hpp"
 
 #include <cstdlib>
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 
@@ -16,7 +16,7 @@ int main(int argc, char **argv)
 
     string dataFileName = argv[1];
 
-    string dataFilePath = string("..") + filesystem::path::preferred_separator + string("data") + filesystem::path::preferred_separator + dataFileName;
+    string dataFilePath = pathJoin(pathJoin("..", "data"), dataFileName);
 
     ifstream dataFile;
 
@@ -33,19 +33,17 @@ int main(int argc, char **argv)
 
     map<char, int> defaultAlphabet = {{'A', 0}, {'C', 1}, {'G', 2}, {'T', 3}};
 
-    string seedsFileFolderPath = string("..") + filesystem::path::preferred_separator + string("seeds");
+    string seedsFileFolderPath = pathJoin("..", "seeds");
 
-    filesystem::path seedsFileFolder(seedsFileFolderPath);
-
-    if (!filesystem::exists(seedsFileFolder))
+    if (!pathExists(seedsFileFolderPath))
     {
-        if (!filesystem::create_directories(seedsFileFolder))
+        if (!createDirectories(seedsFileFolderPath))
         {
             exit(EXIT_FAILURE);
         }
     }
 
-    string seedsFilePath = seedsFileFolderPath + filesystem::path::preferred_separator + string("seeds_") + dataFileName + string("_paramD") + to_string(paramD) + string("_numRepeats") + to_string(numRepeats) + string("_numMaxEditsE") + to_string(numMaxEditsE) + string("_doGenerateEplus1Seeds=") + to_string(doGenerateEplus1Seeds) + string("_doUseTablesC=") + to_string(doUseTablesC);
+    string seedsFilePath = pathJoin(seedsFileFolderPath, string("seeds_") + dataFileName + string("_paramD") + to_string(paramD) + string("_numRepeats") + to_string(numRepeats) + string("_numMaxEditsE") + to_string(numMaxEditsE) + string("_doGenerateEplus1Seeds=") + to_string(doGenerateEplus1Seeds) + string("_doUseTablesC=") + to_string(doUseTablesC));
 
     ofstream seedsFile(seedsFilePath);
 
