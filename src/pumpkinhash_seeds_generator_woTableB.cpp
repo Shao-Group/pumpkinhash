@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 int main(int argc, char **argv)
 {
@@ -56,28 +57,48 @@ int main(int argc, char **argv)
 
     cout << "Generating " << numRepeats * (doGenerateEplus1Seeds ? numMaxEditsE + 1 : 1) << " seeds for sequences in " << dataFileName << " file with D = " << paramD << " and at most " << numMaxEditsE << " edits..." << endl;
 
+    vector<string> sequences;
+
     while (dataFile >> sequence)
     {
-        int windowSizeN = sequence.length();
+        sequences.push_back(sequence);
+    }
+
+    dataFile.close();
+
+    vector<string> sequenceOutputs(sequences.size());
+
+#pragma omp parallel for
+    for (int sequenceIdx = 0; sequenceIdx < (int) sequences.size(); sequenceIdx++)
+    {
+        const string &currentSequence = sequences[sequenceIdx];
+        int windowSizeN = currentSequence.length();
 
         PumpkinHash pumpkinHash(windowSizeN, paramD, defaultAlphabet, doUseTablesC);
 
-        seedsFile << sequence << endl;
+        ostringstream sequenceOutput;
+
+        sequenceOutput << currentSequence << endl;
 
         for (int repeat = 1; repeat <= numRepeats; repeat++)
         {
             pumpkinHash.loadTables(repeat);
 
-            vector<Seed> seeds = pumpkinHash.solveDP(sequence, numMaxEditsE, doGenerateEplus1Seeds);
+            vector<Seed> seeds = pumpkinHash.solveDP(currentSequence, numMaxEditsE, doGenerateEplus1Seeds);
 
-            for (int seedIdx = 0; seedIdx < seeds.size(); seedIdx++)
+            for (int seedIdx = 0; seedIdx < (int) seeds.size(); seedIdx++)
             {
-                seedsFile << repeat << "," << seeds[seedIdx].psi << "," << seeds[seedIdx].omega << "," << seeds[seedIdx].seed << endl;
+                sequenceOutput << repeat << "," << seeds[seedIdx].psi << "," << seeds[seedIdx].omega << "," << seeds[seedIdx].seed << endl;
             }
         }
+
+        sequenceOutputs[sequenceIdx] = sequenceOutput.str();
     }
 
-    dataFile.close();
+    for (int sequenceIdx = 0; sequenceIdx < (int) sequences.size(); sequenceIdx++)
+    {
+        seedsFile << sequenceOutputs[sequenceIdx];
+    }
 
     seedsFile.close();
 
