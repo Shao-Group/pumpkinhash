@@ -68,7 +68,7 @@ int main(int argc, char **argv)
 
     vector<string> sequenceOutputs(sequences.size());
 
-#pragma omp parallel for
+    #pragma omp parallel for
     for (int sequenceIdx = 0; sequenceIdx < (int) sequences.size(); sequenceIdx++)
     {
         const string &currentSequence = sequences[sequenceIdx];
