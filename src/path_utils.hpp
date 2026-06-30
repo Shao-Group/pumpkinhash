@@ -2,41 +2,79 @@
 #define PATH_UTILS_HPP
 
 #include <string>
+
+#ifdef _WIN32
+#include <direct.h>
+#include <sys/stat.h>
+#else
 #include <sys/stat.h>
 #include <sys/types.h>
+#endif
 
-inline std::string pathJoin(const std::string &leftPath, const std::string &rightPath)
+using namespace std;
+
+inline char pathSeparator()
+{
+#ifdef _WIN32
+    return '\\';
+#else
+    return '/';
+#endif
+}
+
+inline bool hasTrailingSeparator(const string &path)
+{
+    if (path.empty())
+    {
+        return false;
+    }
+
+    const char lastCharacter = path[path.size() - 1];
+
+    return lastCharacter == '/' || lastCharacter == '\\';
+}
+
+inline string pathJoin(const string &leftPath, const string &rightPath)
 {
     if (leftPath.empty())
     {
         return rightPath;
     }
 
-    if (leftPath[leftPath.size() - 1] == '/')
+    if (hasTrailingSeparator(leftPath))
     {
         return leftPath + rightPath;
     }
 
-    return leftPath + "/" + rightPath;
+    return leftPath + pathSeparator() + rightPath;
 }
 
-inline bool pathExists(const std::string &path)
+inline bool pathExists(const string &path)
 {
     struct stat pathStat;
 
     return stat(path.c_str(), &pathStat) == 0;
 }
 
-inline bool createDirectories(const std::string &path)
+inline bool createDirectory(const string &path)
+{
+#ifdef _WIN32
+    return _mkdir(path.c_str()) == 0;
+#else
+    return mkdir(path.c_str(), 0755) == 0;
+#endif
+}
+
+inline bool createDirectories(const string &path)
 {
     if (pathExists(path))
     {
         return true;
     }
 
-    const std::size_t separatorPosition = path.find_last_of('/');
+    const size_t separatorPosition = path.find_last_of("/\\");
 
-    if (separatorPosition != std::string::npos && separatorPosition > 0)
+    if (separatorPosition != string::npos && separatorPosition > 0)
     {
         if (!createDirectories(path.substr(0, separatorPosition)))
         {
@@ -44,7 +82,7 @@ inline bool createDirectories(const std::string &path)
         }
     }
 
-    if (mkdir(path.c_str(), 0755) != 0)
+    if (!createDirectory(path))
     {
         return pathExists(path);
     }
